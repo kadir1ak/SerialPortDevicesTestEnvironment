@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SerialPortDevicesTestEnvironment.Helpers;
+using SerialPortDevicesTestEnvironment.Services;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
-using SerialPortDevicesTestEnvironment.Helpers;
-using SerialPortDevicesTestEnvironment.Services;
 
 namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
 {
     public class DevicesViewModel : BindableBase
     {
         private readonly SerialPortsManager _manager;
-        public ObservableCollection<ConnectedDeviceViewModel> ConnectedDevices { get; } = new ObservableCollection<ConnectedDeviceViewModel>();
+
+        // Bağlı cihazların VM listesi
+        public ObservableCollection<ConnectedDeviceViewModel> ConnectedDevices { get; }
+            = new ObservableCollection<ConnectedDeviceViewModel>();
+
         public ObservableCollection<SerialPort> ConnectedPorts => _manager.ConnectedPorts;
         public ObservableCollection<string> AvailablePorts => _manager.AvailablePorts;
 
@@ -32,48 +33,47 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
         {
             _manager = new SerialPortsManager();
             _manager.MessageReceived += OnMessageReceived;
-            // RelayCommand: parametresiz versiyon
+
             ConnectCommand = new RelayCommand(ExecuteConnect, CanExecuteConnect);
             DisconnectCommand = new RelayCommand(ExecuteDisconnect, CanExecuteDisconnect);
         }
         private void OnMessageReceived(string portName, string data)
         {
-            // Hangi porttan geldiğini bul, ilgili "ConnectedDeviceViewModel" in Messages listesine ekle:
-            var deviceVM = ConnectedDevices.FirstOrDefault(d => d.PortName == portName);
-            if (deviceVM != null)
+            // UI thread'de çalışan kod
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                // Tek bir satır ekleyelim; 
-                // multi-line ise satırları parçalayıp ekleyebilirsiniz
-                deviceVM.Messages.Add(data);
-            }
+                var deviceVM = ConnectedDevices.FirstOrDefault(d => d.PortName == portName);
+                if (deviceVM != null)
+                {
+                    deviceVM.Messages.Add(data);
+                }
+            });
         }
+
         private void ExecuteConnect()
         {
             if (!string.IsNullOrEmpty(SelectedPort))
             {
-                // Dilediğiniz baud rate'i verin, örneğin 921600
+                // Portu manager üzerinden aç
                 _manager.ConnectToPort(SelectedPort, 921600);
-                // Bağlantı sağlandıysa, biz de “ConnectedDevices” listemize 
-                // o portu temsil eden bir DeviceViewModel ekleyelim:
-                // Eğer zaten yoksa ekleyelim
+
+                // Bağlandıysa, listemize ekle (yoksa)
                 if (!ConnectedDevices.Any(d => d.PortName == SelectedPort))
                 {
-                    ConnectedDevices.Add(new ConnectedDeviceViewModel(SelectedPort));
+                    ConnectedDevices.Add(new ConnectedDeviceViewModel(_manager, SelectedPort));
                 }
             }
         }
-        private bool CanExecuteConnect()
-        {
-            // Sadece seçili port varsa
-            return !string.IsNullOrEmpty(SelectedPort);
-        }
+        private bool CanExecuteConnect() => !string.IsNullOrEmpty(SelectedPort);
 
         private void ExecuteDisconnect()
         {
             if (!string.IsNullOrEmpty(SelectedPort))
             {
+                // Manager'dan portu kapat
                 _manager.DisconnectFromPort(SelectedPort);
-                // Bağlantı kesildikten sonra, istersek "ConnectedDevices"’dan da silebiliriz
+
+                // Bağlılar listemizden de kaldırmak isterseniz:
                 var deviceVM = ConnectedDevices.FirstOrDefault(d => d.PortName == SelectedPort);
                 if (deviceVM != null)
                 {
@@ -81,16 +81,11 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                 }
             }
         }
-        private bool CanExecuteDisconnect()
-        {
-            return !string.IsNullOrEmpty(SelectedPort);
-        }
+        private bool CanExecuteDisconnect() => !string.IsNullOrEmpty(SelectedPort);
+
         public bool IsPortConnected(string portName)
         {
-            // Manager’daki ConnectedPorts içindeki SerialPort objelerinden
-            // herhangi birinin PortName’i, aranan portName ile eşleşiyor mu?
             return _manager.ConnectedPorts.Any(sp => sp.PortName == portName);
         }
-
     }
 }

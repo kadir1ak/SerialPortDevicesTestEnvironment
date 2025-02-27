@@ -1,10 +1,8 @@
 ﻿using SerialPortDevicesTestEnvironment.Helpers;
-using System;
-using System.Collections.Generic;
+using SerialPortDevicesTestEnvironment.Services;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
 {
@@ -16,25 +14,43 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
             get => _portName;
             set => SetProperty(ref _portName, value);
         }
-        // Cihazdan gelen ham metin satırlarını tutacağız
+
+        // Gelen mesajları satır satır tutuyoruz
         public ObservableCollection<string> Messages { get; } = new ObservableCollection<string>();
 
-        private string _messagesString;
-        public string MessagesString
+        // Kullanıcının cihaza göndermek istediği metin
+        private string _outgoingMessage;
+        public string OutgoingMessage
         {
-            get => _messagesString;
-            set => SetProperty(ref _messagesString, value);
+            get => _outgoingMessage;
+            set => SetProperty(ref _outgoingMessage, value);
         }
 
-        public ConnectedDeviceViewModel(string portName)
+        // Tek bir manager referansı; oradan SendMessage() çağıracağız
+        private readonly SerialPortsManager _manager;
+
+        // Gönder butonu
+        public ICommand SendMessageCommand { get; }
+
+        public ConnectedDeviceViewModel(SerialPortsManager manager, string portName)
         {
+            _manager = manager;
             PortName = portName;
 
-            Messages.CollectionChanged += (s, e) =>
-            {
-                // Her ekleme olduğunda tüm listeyi birleştirip tek string yapalım:
-                MessagesString = string.Join(Environment.NewLine, Messages);
-            };
+            SendMessageCommand = new RelayCommand(SendMessage);
         }
+
+        private void SendMessage()
+        {
+            if (!string.IsNullOrWhiteSpace(OutgoingMessage))
+            {
+                _manager.SendMessage(PortName, OutgoingMessage);
+                //OutgoingMessage = string.Empty; // Mesaj kutusunu temizleme
+            }
+        }
+
+        // Eğer UI tarafında tek bir metin halinde görmek isterseniz 
+        // bir "MessagesString" property ekleyip, CollectionChanged'da birleştirebilirsiniz.
+        // Burada satır satır tutmayı tercih ettik.
     }
 }
