@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
     public class DevicesViewModel : BindableBase
     {
         private readonly SerialPortsManager _manager;
-
+        public ObservableCollection<SerialPort> ConnectedPorts => _manager.ConnectedPorts;
         public ObservableCollection<string> AvailablePorts => _manager.AvailablePorts;
 
         private string _selectedPort;
@@ -60,5 +61,12 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
         {
             return !string.IsNullOrEmpty(SelectedPort);
         }
+        public bool IsPortConnected(string portName)
+        {
+            // Manager’daki ConnectedPorts içindeki SerialPort objelerinden
+            // herhangi birinin PortName’i, aranan portName ile eşleşiyor mu?
+            return _manager.ConnectedPorts.Any(sp => sp.PortName == portName);
+        }
+
     }
 }
