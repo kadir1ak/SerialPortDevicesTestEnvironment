@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="SerialPortDevicesTestEnvironment.Views.DeviceViews.DevicesViews"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SerialPortDevicesTestEnvironment.Views.DeviceViews"
+             mc:Ignorable="d" 
+           BorderBrush="#FF87CC59" BorderThickness="3">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Seçili Port combobox -->
+        <ComboBox
+          Grid.Row="0"
+          Margin="0 0 0 10"
+          Width="200"
+          ItemsSource="{Binding AvailablePorts}"
+          SelectedItem="{Binding SelectedPort}"
+          HorizontalAlignment="Left"/>
+
+        <!-- Portları görüntülemek için ItemsControl örneği (WrapPanel) -->
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding AvailablePorts}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="5" Padding="10">
+                            <TextBlock Text="{Binding}" FontWeight="Bold" />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Connect/Disconnect Butonları -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
+            <Button Content="Connect"
+                  Width="100" Margin="0,0,10,0"
+                  Command="{Binding ConnectCommand}" />
+            <Button Content="Disconnect"
+                  Width="100"
+                  Command="{Binding DisconnectCommand}" />
+        </StackPanel>
+    </Grid>
+</UserControl>
