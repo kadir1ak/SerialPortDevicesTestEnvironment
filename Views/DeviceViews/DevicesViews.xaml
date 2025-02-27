@@ -19,29 +19,37 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*" />
+            <!-- ComboBox + Butonlar -->
             <RowDefinition Height="Auto"/>
+            <!-- AvailablePorts wrap panel -->
+            <RowDefinition Height="*"/>
+            <!-- ConnectedDevices mesaj listesi -->
         </Grid.RowDefinitions>
 
-        <!-- 2) Seçili Port combobox -->
-        <ComboBox
-            Grid.Row="0"
-            Margin="0 0 0 10"
+        <!-- 1) Seçili Port Combobox ve Connect/Disconnect Butonları -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+            <ComboBox
             Width="200"
             ItemsSource="{Binding AvailablePorts}"
             SelectedItem="{Binding SelectedPort}"
-            HorizontalAlignment="Left"/>
+            HorizontalAlignment="Left"
+            Margin="0,0,10,0" />
+            <Button Content="Connect"
+                Width="100" Margin="0,0,10,0"
+                Command="{Binding ConnectCommand}" />
+            <Button Content="Disconnect"
+                Width="100"
+                Command="{Binding DisconnectCommand}" />
+        </StackPanel>
 
-        <!-- 3) Portları görüntülemek için ItemsControl (WrapPanel) -->
+        <!-- 2) AvailablePorts için WrapPanel -->
         <ScrollViewer Grid.Row="1">
             <ItemsControl ItemsSource="{Binding AvailablePorts}">
-                <!-- 1) ItemsPanel Template: WrapPanel kullanımı -->
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border BorderThickness="3" Margin="5" Padding="10">
@@ -50,7 +58,7 @@
                                     <Binding Path="." />
                                     <Binding Path="DataContext" RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                     <Binding Path="DataContext.ConnectedPorts.Count" 
-                                     RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                         RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                 </MultiBinding>
                             </Border.BorderBrush>
                             <TextBlock Text="{Binding}" FontWeight="Bold" />
@@ -60,14 +68,70 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <!-- 4) Connect/Disconnect Butonları -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
-            <Button Content="Connect"
-                    Width="100" Margin="0,0,10,0"
-                    Command="{Binding ConnectCommand}" />
-            <Button Content="Disconnect"
-                    Width="100"
-                    Command="{Binding DisconnectCommand}" />
-        </StackPanel>
+        <!-- 3) ConnectedDevices için ItemsControl (her cihazın mesaj box’ı) -->
+        <ScrollViewer Grid.Row="2"
+             HorizontalScrollBarVisibility="Auto" 
+             VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding ConnectedDevices}">
+                <!-- ItemsControl’un varsayılan paneli yerine WrapPanel (ya da StackPanel) kullan -->
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                        <!-- veya <StackPanel Orientation="Horizontal"/> -->
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="Green"
+                                BorderThickness="2"
+                                Margin="5"
+                                Padding="5"
+                                Width="300"
+                                Height="500">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <!-- 1) Başlık satırı (port adı) -->
+                                    <RowDefinition Height="Auto" />
+                                    <!-- 2) Mesajları görüntüleyen TextBox (büyük) -->
+                                    <RowDefinition Height="*" />
+                                    <!-- 3) Gönderilecek mesaj textbox + buton -->
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- (1) Port Adı -->
+                                <TextBlock Grid.Row="0"
+                                           Text="{Binding PortName}"
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Margin="0,0,0,5" />
+
+                                <!-- (2) Gelen mesajları görüntüleyen TextBox -->
+                                <TextBox Grid.Row="1"
+                                         IsReadOnly="True"
+                                         Text="{Binding MessagesString}"
+                                         VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Auto"
+                                         TextWrapping="Wrap"
+                                         helpers:TextBoxAutoScrollBehavior.AutoScrollToEnd="True" />
+
+                                <!-- (3) Gönderilecek mesaj ve buton -->
+                                <StackPanel Grid.Row="2"
+                                            Orientation="Horizontal"
+                                            Margin="0,5,0,0">           
+                                    <TextBox Width="150"
+                                             VerticalAlignment="Center"
+                                             Text="{Binding OutgoingMessage, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button Content="Send"
+                                            Width="70"
+                                            Margin="5,0,0,0"
+                                            Command="{Binding SendMessageCommand}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>

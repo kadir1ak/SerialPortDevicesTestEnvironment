@@ -64,6 +64,21 @@ namespace SerialPortDevicesTestEnvironment.Services
             InitializeEventWatchers();
             ScanSerialPorts();
         }
+        public void SendMessage(string portName, string message)
+        {
+            var serialPort = ConnectedPorts.FirstOrDefault(p => p.PortName == portName);
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                // Burada satır sonu eklemek için "\r\n" gerekebilir 
+                // (cihazınızın protokolüne göre).
+                serialPort.WriteLine(message);
+            }
+            else
+            {
+                // Port yoksa veya kapalıysa istek reddedilebilir / uyarı verilebilir
+                // throw new InvalidOperationException("Port not found or not open.");
+            }
+        }
 
         #region Serial Port Management
 
