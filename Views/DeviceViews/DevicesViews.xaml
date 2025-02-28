@@ -114,11 +114,18 @@
                                          ItemsSource="{Binding Messages}"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         VirtualizingStackPanel.IsVirtualizing="True"
+                                         VirtualizingStackPanel.VirtualizationMode="Standard"
+                                         ScrollViewer.CanContentScroll="True"
+                                         ScrollViewer.IsDeferredScrollingEnabled="True"                                         
                                          MaxHeight="400">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding}"
-                                                        TextWrapping="Wrap" />
+                                            <StackPanel Orientation="Horizontal" Height="16">
+                                                <TextBlock Text="{Binding Index}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                                <TextBlock Text=": " />
+                                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap"/>
+                                            </StackPanel>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>

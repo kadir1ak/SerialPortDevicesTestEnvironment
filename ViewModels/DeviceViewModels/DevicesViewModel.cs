@@ -45,7 +45,11 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                 var deviceVM = ConnectedDevices.FirstOrDefault(d => d.PortName == portName);
                 if (deviceVM != null)
                 {
-                    deviceVM.Messages.Add(data);
+                    deviceVM.Messages.Add(new MessageItem
+                    {
+                        Index = deviceVM.MessageCounter++,
+                        Content = data
+                    });
                 }
             });
         }
@@ -66,14 +70,14 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
         }
         private bool CanExecuteConnect() => !string.IsNullOrEmpty(SelectedPort);
 
-        private void ExecuteDisconnect()
+        private async void ExecuteDisconnect()
         {
             if (!string.IsNullOrEmpty(SelectedPort))
             {
-                // Manager'dan portu kapat
-                _manager.DisconnectFromPort(SelectedPort);
+                // Manager'dan portu kapat, ancak bunu arka planda yap
+                await Task.Run(() => _manager.DisconnectFromPort(SelectedPort));
 
-                // Bağlılar listemizden de kaldırmak isterseniz:
+                // Sonrasında UI tarafında VM listesini güncelle
                 var deviceVM = ConnectedDevices.FirstOrDefault(d => d.PortName == SelectedPort);
                 if (deviceVM != null)
                 {

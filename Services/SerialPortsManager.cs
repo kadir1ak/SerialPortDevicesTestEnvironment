@@ -191,7 +191,7 @@ namespace SerialPortDevicesTestEnvironment.Services
                 );
 
                 _serialPortsAddedWatcher = CreateEventWatcher(
-                    "SELECT * FROM __InstanceOperationEvent WITHIN 1 WHERE TargetInstance ISA 'Win32_SerialPort'",
+                    "SELECT * FROM __InstanceOperationEvent WITHIN 5 WHERE TargetInstance ISA 'Win32_SerialPort'",
                     OnSerialPortAdded
                 );
             }
@@ -212,12 +212,14 @@ namespace SerialPortDevicesTestEnvironment.Services
 
         private void OnSerialPortRemoved(object sender, EventArrivedEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(ScanSerialPorts);
+            Application.Current.Dispatcher.BeginInvoke((Action)ScanSerialPorts);
+
         }
 
         private void OnSerialPortAdded(object sender, EventArrivedEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(ScanSerialPorts);
+            Application.Current.Dispatcher.BeginInvoke((Action)ScanSerialPorts);
+
         }
 
         public void ScanSerialPorts()

@@ -16,7 +16,13 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
         }
 
         // Gelen mesajları satır satır tutuyoruz
-        public ObservableCollection<string> Messages { get; } = new ObservableCollection<string>();
+        private int _messageCounter = 1;
+        public int MessageCounter
+        {
+            get => _messageCounter;
+            set => SetProperty(ref _messageCounter, value);
+        }
+        public ObservableCollection<MessageItem> Messages { get; } = new ObservableCollection<MessageItem>();
 
         // Kullanıcının cihaza göndermek istediği metin
         private string _outgoingMessage;
@@ -36,7 +42,7 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
         {
             _manager = manager;
             PortName = portName;
-
+            
             SendMessageCommand = new RelayCommand(SendMessage);
         }
 
@@ -53,4 +59,11 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
         // bir "MessagesString" property ekleyip, CollectionChanged'da birleştirebilirsiniz.
         // Burada satır satır tutmayı tercih ettik.
     }
+
+    public class MessageItem
+    {
+        public int Index { get; set; }
+        public string Content { get; set; }
+    }
+
 }
