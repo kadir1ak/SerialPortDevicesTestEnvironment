@@ -136,10 +136,23 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                         IncomingMessage = data
                     };
                     device.Messages.Add(newMessage);
+                    CalculateSampleRate(device);
                 }
             });
         }
+        private void CalculateSampleRate(Device device)
+        {
+            device.sampleCount++;
+            var now = DateTime.Now;
+            var elapsed = now - device.lastUpdate;
 
+            if (elapsed.TotalSeconds >= 1) // Her saniyede bir hesapla
+            {
+                device.DataSamplingFrequency = device.sampleCount;
+                device.sampleCount = 0;
+                device.lastUpdate = now;
+            }
+        }
         // ========== CONNECT ==========
         private void ExecuteConnect()
         {

@@ -101,25 +101,31 @@
                                 </Grid.RowDefinitions>
 
                                 <!-- Port adı -->
-                                <TextBlock Grid.Row="0"
-                                           Text="{Binding PortName}"
-                                           FontSize="16" 
-                                           FontWeight="Bold" 
-                                           Margin="0,0,0,5" />
+                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                    <TextBlock  Text="{Binding PortName}"
+                                                FontSize="16" 
+                                                FontWeight="Bold" 
+                                                Margin="5,5,10,5" />
+                                    <TextBlock  Text="{Binding DataSamplingFrequency, StringFormat='{}{0} Hz'}"
+                                                FontSize="16" 
+                                                FontWeight="Bold" 
+                                                Margin="5,5,0,5" />
+                                </StackPanel>
+                               
 
                                 <!-- Gelen mesajları (satır satır) göstermek için 
                                      Tek bir string'e dönüştürmek isterseniz Binding kullanabilirsiniz.
                                      Burada basitçe "ItemsControl" yerine isterseniz ListBox vb. yapılabilir.
                                      Örnek olarak "Join" ile stringleştirmek istersek ek property gerekirdi. -->
                                 <ListBox Grid.Row="1"
+                                         VerticalAlignment="Top"
                                          ItemsSource="{Binding Interface.Messages}"
                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                          VirtualizingStackPanel.IsVirtualizing="True"
                                          VirtualizingStackPanel.VirtualizationMode="Recycling"
                                          ScrollViewer.CanContentScroll="True"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                         ScrollViewer.IsDeferredScrollingEnabled="True"
-                                         MaxHeight="400">
+                                         ScrollViewer.IsDeferredScrollingEnabled="True">
                                     <i:Interaction.Behaviors>
                                         <helpers:AutoScrollBehavior />
                                     </i:Interaction.Behaviors>
@@ -135,15 +141,17 @@
                                 </ListBox>
 
                                 <!-- Gönderilecek mesaj + Buton -->
-                                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10,10,0,10">
                                     <TextBox Width="200"
                                              Text="{Binding Interface.OutgoingMessage, UpdateSourceTrigger=PropertyChanged}"
                                              Margin="0,0,5,0"/>
                                     <Button Content="Send"
                                             Width="60"
+                                            Margin="0,0,5,0"
                                             Command="{Binding SendMessageCommand}" />
                                     <CheckBox Content="Auto Send"
                                               Width="80"
+                                              Margin="0,3,5,0"
                                               IsChecked="{Binding AutoSendActive, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                               Command="{Binding AutoSendMessageCommand}"/>
                                 </StackPanel>

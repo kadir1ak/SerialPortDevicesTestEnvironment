@@ -132,6 +132,17 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
             set => SetProperty(ref _baudRate, value);
         }
 
+        public int sampleCount = 0;
+
+        public DateTime lastUpdate = DateTime.Now;
+
+        private int _dataSamplingFrequency;
+        public int DataSamplingFrequency
+        {
+            get => _dataSamplingFrequency;
+            set => SetProperty(ref _dataSamplingFrequency, value);
+        }
+
         private Parity _parity = Parity.None;
         public Parity Parity
         {
