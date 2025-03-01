@@ -3,17 +3,21 @@ using System.Windows;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
-using System.Threading.Tasks; // Task, async/await için
+using System.Threading.Tasks;
 using SerialPortDevicesTestEnvironment.Helpers;
-using SerialPortDevicesTestEnvironment.Models.Data;
 using SerialPortDevicesTestEnvironment.Models.Device;
 using SerialPortDevicesTestEnvironment.Services;
+using System.Collections.Concurrent;
 
 namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
 {
     public class DevicesViewModel : BindableBase
     {
         private readonly SerialPortsManager _manager;
+
+        private CancellationTokenSource _updateInterfaceLoopCancellationTokenSource;
+        private readonly object _InterfaceDataLock = new();
+        private int UpdateTimeMillisecond = 100;  // 10 Hz (100ms)
 
         // -- 1) Bağlı Cihazların Listesi --
         public ObservableCollection<Device> ConnectedDevices { get; } = new ObservableCollection<Device>();
@@ -60,7 +64,61 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
 
             ConnectCommand = new RelayCommand(ExecuteConnect, CanExecuteConnect);
             DisconnectCommand = new RelayCommand(ExecuteDisconnect, CanExecuteDisconnect);
-           
+
+            // UI Güncelleme Döngüsünü Başlat
+            StartUpdateInterfaceDataLoop();
+        }
+        private async Task UpdateInterfaceDataLoop(CancellationToken token)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(UpdateTimeMillisecond, token);
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        foreach (var device in ConnectedDevices)
+                        {
+                            if(device.Messages.LastOrDefault()?.IncomingMessage == null)
+                            {
+                                continue;
+                            }
+                            if (device != null)
+                            {
+                                var newMessage = new DeviceMessage
+                                {
+                                    IncomingMessageIndex = device.Messages.Count,
+                                    IncomingMessage = device.Messages.LastOrDefault()?.IncomingMessage
+                                };
+                                device.Interface.Messages.Add(newMessage);
+                            }
+                        }                       
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Interface update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void StartUpdateInterfaceDataLoop()
+        {
+            StopUpdateInterfaceDataLoop(); // Eski döngüyü durdur
+            _updateInterfaceLoopCancellationTokenSource = new CancellationTokenSource();
+            var token = _updateInterfaceLoopCancellationTokenSource.Token;
+            _ = UpdateInterfaceDataLoop(token);
+        }
+
+        public void StopUpdateInterfaceDataLoop()
+        {
+            if (_updateInterfaceLoopCancellationTokenSource != null && !_updateInterfaceLoopCancellationTokenSource.IsCancellationRequested)
+            {
+                _updateInterfaceLoopCancellationTokenSource.Cancel();
+                _updateInterfaceLoopCancellationTokenSource.Dispose();
+                _updateInterfaceLoopCancellationTokenSource = null;
+            }
         }
 
         // ========== Gelen Veri Yakalama (Event) ==========
@@ -72,7 +130,7 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                 var device = ConnectedDevices.FirstOrDefault(d => d.PortName == portName);
                 if (device != null)
                 {
-                    var newMessage = new Message
+                    var newMessage = new DeviceMessage
                     {
                         IncomingMessageIndex = device.Messages.Count,
                         IncomingMessage = data

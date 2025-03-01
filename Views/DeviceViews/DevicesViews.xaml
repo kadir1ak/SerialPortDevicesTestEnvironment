@@ -112,7 +112,7 @@
                                      Burada basitçe "ItemsControl" yerine isterseniz ListBox vb. yapılabilir.
                                      Örnek olarak "Join" ile stringleştirmek istersek ek property gerekirdi. -->
                                 <ListBox Grid.Row="1"
-                                         ItemsSource="{Binding Messages}"
+                                         ItemsSource="{Binding Interface.Messages}"
                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                          VirtualizingStackPanel.IsVirtualizing="True"
                                          VirtualizingStackPanel.VirtualizationMode="Recycling"
@@ -137,7 +137,7 @@
                                 <!-- Gönderilecek mesaj + Buton -->
                                 <StackPanel Grid.Row="2" Orientation="Horizontal">
                                     <TextBox Width="200"
-                                             Text="{Binding OutgoingMessage, UpdateSourceTrigger=PropertyChanged}"
+                                             Text="{Binding Interface.OutgoingMessage, UpdateSourceTrigger=PropertyChanged}"
                                              Margin="0,0,5,0"/>
                                     <Button Content="Send"
                                             Width="60"

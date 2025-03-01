@@ -1,8 +1,13 @@
 ﻿using SerialPortDevicesTestEnvironment.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace SerialPortDevicesTestEnvironment.Models.Data
+namespace SerialPortDevicesTestEnvironment.Models.Device
 {
-    public class Message : BindableBase
+    public class DeviceMessage : BindableBase
     {
         // Gelen mesaj için bir “index” (örneğin, kaçıncı gelen mesaj olduğu)
         private int _incomingMessageIndex;
@@ -19,5 +24,13 @@ namespace SerialPortDevicesTestEnvironment.Models.Data
             get => _incomingMessage;
             set => SetProperty(ref _incomingMessage, value);
         }
+
+        // Giden mesaj (Outgoing)
+        //private string _outgoingMessage;
+        //public string OutgoingMessage
+        //{
+        //    get => _outgoingMessage;
+        //    set => SetProperty(ref _outgoingMessage, value);
+        //}        
     }
 }

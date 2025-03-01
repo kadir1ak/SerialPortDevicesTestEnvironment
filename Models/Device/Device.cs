@@ -1,7 +1,6 @@
 ﻿using System.IO.Ports;
 using System.Collections.ObjectModel;
 using SerialPortDevicesTestEnvironment.Helpers;
-using SerialPortDevicesTestEnvironment.Models.Data;
 using SerialPortDevicesTestEnvironment.Services;
 using System.Windows.Input;
 
@@ -28,15 +27,15 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
         // === NORMAL MESAJ GÖNDERME ===
         private void SendMessage()
         {
-            if (!string.IsNullOrWhiteSpace(OutgoingMessage))
+            if (!string.IsNullOrWhiteSpace(Interface.OutgoingMessage))
             {
-                _manager.SendMessage(PortName, OutgoingMessage);
+                _manager.SendMessage(PortName, Interface.OutgoingMessage);
             }
         }
 
         private bool CanSendMessage()
         {
-            return IsConnected && !string.IsNullOrWhiteSpace(OutgoingMessage);
+            return IsConnected && !string.IsNullOrWhiteSpace(Interface.OutgoingMessage);
         }
 
         // === OTOMATİK GÖNDERME ===
@@ -71,7 +70,7 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
             {
                 while (AutoSendActive && !token.IsCancellationRequested)
                 {
-                    _manager.SendMessage(PortName, OutgoingMessage);
+                    _manager.SendMessage(PortName, Interface.OutgoingMessage);
                     await Task.Delay(10, token); // 10ms bekle
                 }
             }, token);
@@ -81,6 +80,21 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
         {
             AutoSendActive = false;
             _autoSendTokenSource?.Cancel();
+        }
+
+        // Gelen mesajları tutacağımız koleksiyon
+        private ObservableCollection<DeviceMessage> _messages = new ObservableCollection<DeviceMessage>();
+        public ObservableCollection<DeviceMessage> Messages
+        {
+            get => _messages;
+            set => SetProperty(ref _messages, value);
+        }
+
+        private DeviceInterface _interface = new DeviceInterface();
+        public DeviceInterface Interface
+        {
+            get => _interface;
+            set => SetProperty(ref _interface, value);
         }
 
         private string _id;
@@ -130,22 +144,6 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
         {
             get => _stopBits;
             set => SetProperty(ref _stopBits, value);
-        }
-
-        // Gelen mesajları tutacağımız koleksiyon
-        private ObservableCollection<Message> _messages = new ObservableCollection<Message>();
-        public ObservableCollection<Message> Messages
-        {
-            get => _messages;
-            set => SetProperty(ref _messages, value);
-        }
-
-        // Kullanıcının UI'da yazıp göndereceği geçici metin
-        private string _outgoingMessage;
-        public string OutgoingMessage
-        {
-            get => _outgoingMessage;
-            set => SetProperty(ref _outgoingMessage, value);
         }
     }
 }
