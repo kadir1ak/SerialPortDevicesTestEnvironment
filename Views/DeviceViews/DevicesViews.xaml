@@ -142,6 +142,10 @@
                                     <Button Content="Send"
                                             Width="60"
                                             Command="{Binding SendMessageCommand}" />
+                                    <CheckBox Content="Auto Send"
+                                              Width="80"
+                                              IsChecked="{Binding AutoSendActive, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                              Command="{Binding AutoSendMessageCommand}"/>
                                 </StackPanel>
                             </Grid>
                         </Border>

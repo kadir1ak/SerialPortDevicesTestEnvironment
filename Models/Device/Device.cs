@@ -10,17 +10,22 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
     public class Device : BindableBase
     {
         private readonly SerialPortsManager _manager;
+        private CancellationTokenSource _autoSendTokenSource;
 
-        // Giden mesajları kontrol eden komut
+        // Giden mesajları kontrol eden komutlar
         public ICommand SendMessageCommand { get; }
+        public ICommand AutoSendMessageCommand { get; }
+
         public Device(SerialPortsManager manager, string portName, bool isConnected)
         {
             _manager = manager;
             PortName = portName;
             IsConnected = isConnected;
             SendMessageCommand = new RelayCommand(SendMessage, CanSendMessage);
+            AutoSendMessageCommand = new RelayCommand(AutoSend);
         }
 
+        // === NORMAL MESAJ GÖNDERME ===
         private void SendMessage()
         {
             if (!string.IsNullOrWhiteSpace(OutgoingMessage))
@@ -32,6 +37,50 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
         private bool CanSendMessage()
         {
             return IsConnected && !string.IsNullOrWhiteSpace(OutgoingMessage);
+        }
+
+        // === OTOMATİK GÖNDERME ===
+        private bool _autoSendActive = false;
+        public bool AutoSendActive
+        {
+            get => _autoSendActive;
+            set => SetProperty(ref _autoSendActive, value);
+        }
+
+        private void AutoSend()
+        {
+            if (AutoSendActive)
+            {
+                StopAutoSend();
+            }
+            else
+            {
+                StartAutoSend();
+            }
+        }
+
+        private void StartAutoSend()
+        {
+            if (!CanSendMessage()) return;
+
+            AutoSendActive = true;
+            _autoSendTokenSource = new CancellationTokenSource();
+            CancellationToken token = _autoSendTokenSource.Token;
+
+            Task.Run(async () =>
+            {
+                while (AutoSendActive && !token.IsCancellationRequested)
+                {
+                    _manager.SendMessage(PortName, OutgoingMessage);
+                    await Task.Delay(10, token); // 10ms bekle
+                }
+            }, token);
+        }
+
+        private void StopAutoSend()
+        {
+            AutoSendActive = false;
+            _autoSendTokenSource?.Cancel();
         }
 
         private string _id;
