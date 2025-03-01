@@ -31,7 +31,7 @@
             <ComboBox
                 Width="150"
                 ItemsSource="{Binding AvailablePorts}"
-                SelectedItem="{Binding SelectedPort}"
+                SelectedItem="{Binding SelectedPortName}"
                 Margin="0,0,10,0" />
             <Button Content="Connect"
                     Width="100"
@@ -112,19 +112,19 @@
                                      Örnek olarak "Join" ile stringleştirmek istersek ek property gerekirdi. -->
                                 <ListBox Grid.Row="1"
                                          ItemsSource="{Binding Messages}"
-                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                          VirtualizingStackPanel.IsVirtualizing="True"
                                          VirtualizingStackPanel.VirtualizationMode="Standard"
                                          ScrollViewer.CanContentScroll="True"
-                                         ScrollViewer.IsDeferredScrollingEnabled="True"                                         
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         ScrollViewer.IsDeferredScrollingEnabled="False"
                                          MaxHeight="400">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Height="16">
-                                                <TextBlock Text="{Binding Index}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding IncomingMessageIndex}" FontWeight="Bold" TextWrapping="Wrap"/>
                                                 <TextBlock Text=": " />
-                                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding IncomingMessage}" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
