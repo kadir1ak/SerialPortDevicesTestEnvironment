@@ -15,11 +15,11 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
         public ICommand SendMessageCommand { get; }
         public ICommand AutoSendMessageCommand { get; }
 
-        public Device(SerialPortsManager manager, string portName, bool isConnected)
+        public Device(SerialPortsManager manager, string portName, DeviceStatus deviceStatus)
         {
             _manager = manager;
             PortName = portName;
-            IsConnected = isConnected;
+            DeviceStatus = deviceStatus;
             SendMessageCommand = new RelayCommand(SendMessage, CanSendMessage);
             AutoSendMessageCommand = new RelayCommand(AutoSend);
         }
@@ -35,7 +35,7 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
 
         private bool CanSendMessage()
         {
-            return IsConnected && !string.IsNullOrWhiteSpace(Interface.OutgoingMessage);
+            return (DeviceStatus == DeviceStatus.Connected || DeviceStatus == DeviceStatus.Identified) && !string.IsNullOrWhiteSpace(Interface.OutgoingMessage);
         }
 
         // === OTOMATİK GÖNDERME ===
@@ -118,11 +118,11 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
             set => SetProperty(ref _portName, value);
         }
 
-        private bool _isConnected;
-        public bool IsConnected
+        private DeviceStatus _deviceStatus;
+        public DeviceStatus DeviceStatus
         {
-            get => _isConnected;
-            set => SetProperty(ref _isConnected, value);
+            get => _deviceStatus;
+            set => SetProperty(ref _deviceStatus, value);
         }
 
         private int _baudRate = 9600;
@@ -156,5 +156,29 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
             get => _stopBits;
             set => SetProperty(ref _stopBits, value);
         }
+
+        private DeviceProperties _properties = new DeviceProperties();
+        public DeviceProperties Properties
+        {
+            get => _properties;
+            set => SetProperty(ref _properties, value);
+        }
+    }
+
+    public enum DeviceStatus
+    {
+        Connected,
+        Disconnected,
+        Identified,
+        Unidentified
+    }
+    public class DeviceProperties
+    {
+        public string CompanyName { get; set; }
+        public string ProductName { get; set; }
+        public string ProductModel { get; set; }
+        public string ManufactureDate { get; set; }
+        public string ProductId { get; set; }
+        public string FirmwareVersion { get; set; }
     }
 }

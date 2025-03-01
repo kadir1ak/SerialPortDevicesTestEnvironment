@@ -8,6 +8,7 @@ using SerialPortDevicesTestEnvironment.Helpers;
 using SerialPortDevicesTestEnvironment.Models.Device;
 using SerialPortDevicesTestEnvironment.Services;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
 {
@@ -92,6 +93,7 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                                     IncomingMessage = device.Messages.LastOrDefault()?.IncomingMessage
                                 };
                                 device.Interface.Messages.Add(newMessage);
+                                DeviceIdentification(device);
                             }
                         }                       
                     });
@@ -153,6 +155,59 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                 device.lastUpdate = now;
             }
         }
+        private void DeviceIdentification(Device device)
+        {
+            try
+            {
+                if (device.DeviceStatus == DeviceStatus.Identified)
+                    return;
+
+                // Null kontrolü
+                var lastMessage = device.Messages.LastOrDefault();
+                if (lastMessage == null || string.IsNullOrWhiteSpace(lastMessage.IncomingMessage))
+                    return; // Mesaj yoksa işlemi sonlandır
+
+                string deviceInfo = lastMessage.IncomingMessage;
+                Console.WriteLine(deviceInfo);
+                string[] parts = deviceInfo.Split(';');
+                if (parts.Length == 6 &&
+                    !string.IsNullOrWhiteSpace(parts[0]) &&
+                    !string.IsNullOrWhiteSpace(parts[1]) &&
+                    !string.IsNullOrWhiteSpace(parts[2]) &&
+                    !string.IsNullOrWhiteSpace(parts[3]) &&
+                    !string.IsNullOrWhiteSpace(parts[4]) &&
+                    !string.IsNullOrWhiteSpace(parts[5]))
+                {
+                    // UI iş parçacığında çalıştır
+                    if (Application.Current?.Dispatcher.CheckAccess() == true)
+                    {
+                        AssignDeviceProperties(device, parts);
+                    }
+                    else
+                    {
+                        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            AssignDeviceProperties(device, parts);
+                        }));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing device info: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AssignDeviceProperties(Device device, string[] parts)
+        {
+            device.Properties.CompanyName = parts[0];
+            device.Properties.ProductName = parts[1];
+            device.Properties.ProductModel = parts[2];
+            device.Properties.ManufactureDate = parts[3];
+            device.Properties.ProductId = parts[4];
+            device.Properties.FirmwareVersion = parts[5];
+            device.DeviceStatus = DeviceStatus.Identified;
+        }
         // ========== CONNECT ==========
         private void ExecuteConnect()
         {
@@ -167,14 +222,14 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
             if (existingDevice == null)
             {
                 // Yoksa yeni bir device oluşturup ekleyin:
-                var newDevice = new Device(_manager, SelectedPortName, isConnected:true);
+                var newDevice = new Device(_manager, SelectedPortName, deviceStatus: DeviceStatus.Connected);
                 ConnectedDevices.Add(newDevice);
                 Device = newDevice;
             }
             else
             {
                 // Varsa yalnızca IsConnected durumunu güncelle
-                existingDevice.IsConnected = true;
+                existingDevice.DeviceStatus = DeviceStatus.Connected;
                 Device = existingDevice;
             }
         }
@@ -198,7 +253,7 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
             await Task.Run(() => _manager.DisconnectFromPort(Device.PortName));
 
             // Device'i işaretle
-            Device.IsConnected = false;
+            Device.DeviceStatus = DeviceStatus.Disconnected;
             Device.StopAutoSend();
 
             // ConnectedDevices'tan çıkar
@@ -216,7 +271,17 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
         private bool CanExecuteDisconnect()
         {
             // Seçili port adına sahip, IsConnected=true durumda bir Device var mı?
-            return !string.IsNullOrEmpty(SelectedPortName) && ConnectedDevices.Any(d => d.PortName == SelectedPortName && d.IsConnected);
+            return !string.IsNullOrEmpty(SelectedPortName) && ConnectedDevices.Any(d => d.PortName == SelectedPortName && (d.DeviceStatus == DeviceStatus.Connected || d.DeviceStatus == DeviceStatus.Identified));
+        }
+
+        // ========== Cihazın Durumunu Bildir ==========
+        public DeviceStatus? IsDeviceStatus(string portName)
+        {
+            // Bağlı cihazlar arasında verilen port adına sahip cihazı bul
+            var device = ConnectedDevices.FirstOrDefault(d => d.PortName == portName);
+
+            // Eğer cihaz bulunursa durumunu döndür, aksi halde null döndür
+            return device?.DeviceStatus;
         }
 
         // ========== Port Bağlı mı Kontrol ==========

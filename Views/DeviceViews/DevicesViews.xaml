@@ -110,6 +110,14 @@
                                                 FontSize="16" 
                                                 FontWeight="Bold" 
                                                 Margin="5,5,0,5" />
+                                    <TextBlock  Text="{Binding DeviceStatus}"
+                                                FontSize="16" 
+                                                FontWeight="Bold" 
+                                                Margin="5,5,0,5" />
+                                    <TextBlock  Text="{Binding Properties.ProductId}"
+                                                FontSize="16" 
+                                                FontWeight="Bold" 
+                                                Margin="5,5,0,5" />
                                 </StackPanel>
                                
 

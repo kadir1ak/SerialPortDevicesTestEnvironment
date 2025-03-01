@@ -21,5 +21,6 @@ namespace SerialPortDevicesTestEnvironment.Helpers
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
     }
 }
