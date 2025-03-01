@@ -76,7 +76,7 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
             }, token);
         }
 
-        private void StopAutoSend()
+        public void StopAutoSend()
         {
             AutoSendActive = false;
             _autoSendTokenSource?.Cancel();

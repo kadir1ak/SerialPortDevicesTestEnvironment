@@ -199,6 +199,7 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
 
             // Device'i işaretle
             Device.IsConnected = false;
+            Device.StopAutoSend();
 
             // ConnectedDevices'tan çıkar
             var devToRemove = ConnectedDevices.FirstOrDefault(d => d.PortName == Device.PortName);
