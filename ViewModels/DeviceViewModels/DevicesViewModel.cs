@@ -72,11 +72,12 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                 var device = ConnectedDevices.FirstOrDefault(d => d.PortName == portName);
                 if (device != null)
                 {
-                    device.Messages.Add(new Message
+                    var newMessage = new Message
                     {
                         IncomingMessageIndex = device.Messages.Count,
                         IncomingMessage = data
-                    });
+                    };
+                    device.Messages.Add(newMessage);
                 }
             });
         }

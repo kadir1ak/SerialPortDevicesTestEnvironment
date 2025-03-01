@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SerialPortDevicesTestEnvironment.Views.DeviceViews"
              xmlns:helpers="clr-namespace:SerialPortDevicesTestEnvironment.Helpers"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              BorderBrush="#FF87CC59" BorderThickness="3">
 
@@ -114,11 +115,14 @@
                                          ItemsSource="{Binding Messages}"
                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                          VirtualizingStackPanel.IsVirtualizing="True"
-                                         VirtualizingStackPanel.VirtualizationMode="Standard"
+                                         VirtualizingStackPanel.VirtualizationMode="Recycling"
                                          ScrollViewer.CanContentScroll="True"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                         ScrollViewer.IsDeferredScrollingEnabled="False"
+                                         ScrollViewer.IsDeferredScrollingEnabled="True"
                                          MaxHeight="400">
+                                    <i:Interaction.Behaviors>
+                                        <helpers:AutoScrollBehavior />
+                                    </i:Interaction.Behaviors>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Height="16">
@@ -130,7 +134,7 @@
                                     </ListBox.ItemTemplate>
                                 </ListBox>
 
-                                    <!-- Gönderilecek mesaj + Buton -->
+                                <!-- Gönderilecek mesaj + Buton -->
                                 <StackPanel Grid.Row="2" Orientation="Horizontal">
                                     <TextBox Width="200"
                                              Text="{Binding OutgoingMessage, UpdateSourceTrigger=PropertyChanged}"
