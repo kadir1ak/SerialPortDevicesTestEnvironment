@@ -57,9 +57,7 @@
                             <Border.BorderBrush>
                                 <MultiBinding Converter="{StaticResource PortConnectedToBrushMultiConverter}">
                                     <Binding Path="." />
-                                    <!-- DataContext => DevicesViewModel -->
                                     <Binding Path="DataContext" RelativeSource="{RelativeSource AncestorType=UserControl}" />
-                                    <!-- Tetik amaçlı, e.g. ConnectedPorts.Count -->
                                     <Binding Path="DataContext.ConnectedPorts.Count" 
                                              RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                 </MultiBinding>

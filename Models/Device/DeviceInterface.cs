@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace SerialPortDevicesTestEnvironment.Models.Device
 {
@@ -24,6 +25,6 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
         {
             get => _outgoingMessage;
             set => SetProperty(ref _outgoingMessage, value);
-        }
+        }        
     }
 }

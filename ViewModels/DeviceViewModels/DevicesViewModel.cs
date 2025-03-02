@@ -95,7 +95,11 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                                 device.Interface.Messages.Add(newMessage);
                                 DeviceIdentification(device);
                             }
-                        }                       
+                        }
+
+                        // UI'yi yeniden tetikle
+                        RaisePropertyChanged(nameof(ConnectedDevices));
+                        RaisePropertyChanged(nameof(ConnectedPorts));
                     });
                 }
             }
@@ -232,6 +236,9 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
                 existingDevice.DeviceStatus = DeviceStatus.Connected;
                 Device = existingDevice;
             }
+            // UI'yi yeniden tetikle
+            RaisePropertyChanged(nameof(ConnectedDevices));
+            RaisePropertyChanged(nameof(ConnectedPorts));
         }
 
         // Butonun aktif olması için: Sadece Port seçiliyse
@@ -265,6 +272,9 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
 
             // Seçili cihazi null'la (UI'da buton vs. güncellenecek)
             Device = null;
+            // UI'yi yeniden tetikle
+            RaisePropertyChanged(nameof(ConnectedDevices));
+            RaisePropertyChanged(nameof(ConnectedPorts));
         }
 
         // Butonun aktif olması için: Seçili bir Device ve Port’u dolu olmalı
@@ -277,10 +287,7 @@ namespace SerialPortDevicesTestEnvironment.ViewModels.DeviceViewModels
         // ========== Cihazın Durumunu Bildir ==========
         public DeviceStatus? IsDeviceStatus(string portName)
         {
-            // Bağlı cihazlar arasında verilen port adına sahip cihazı bul
             var device = ConnectedDevices.FirstOrDefault(d => d.PortName == portName);
-
-            // Eğer cihaz bulunursa durumunu döndür, aksi halde null döndür
             return device?.DeviceStatus;
         }
 

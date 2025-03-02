@@ -54,7 +54,14 @@ namespace SerialPortDevicesTestEnvironment.Services
                 serialPort.DataReceived += (s, e) => OnDataReceived(serialPort);
                 serialPort.Open();
 
-                ConnectedPorts.Add(serialPort);
+                // ConnectedPorts koleksiyonunu güncelle
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    if (!ConnectedPorts.Any(p => p.PortName == portName))
+                    {
+                        ConnectedPorts.Add(serialPort);
+                    }
+                });
                 StartProcessingPortData(serialPort);
             }
             catch (Exception ex)

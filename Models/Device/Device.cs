@@ -118,11 +118,12 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
             set => SetProperty(ref _portName, value);
         }
 
-        private DeviceStatus _deviceStatus;
+        private DeviceStatus _deviceStatus = DeviceStatus.Disconnected;
         public DeviceStatus DeviceStatus
         {
             get => _deviceStatus;
             set => SetProperty(ref _deviceStatus, value);
+
         }
 
         private int _baudRate = 9600;
@@ -180,5 +181,11 @@ namespace SerialPortDevicesTestEnvironment.Models.Device
         public string ManufactureDate { get; set; }
         public string ProductId { get; set; }
         public string FirmwareVersion { get; set; }
+    }
+
+    public class DeviceMessage
+    {
+        public int IncomingMessageIndex { get; set; }
+        public string IncomingMessage { get; set; }
     }
 }
