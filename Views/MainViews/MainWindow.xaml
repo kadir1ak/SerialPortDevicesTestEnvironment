@@ -6,7 +6,7 @@
         xmlns:viewmodels="clr-namespace:SerialPortDevicesTestEnvironment.ViewModels.MainViewModels"
         xmlns:views="clr-namespace:SerialPortDevicesTestEnvironment.Views.DeviceViews"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
-        Title="MainWindow" Height="720" Width="1080">
+        Title="MainWindow" Height="720" Width="1680">
 
     <Window.DataContext>
         <!-- Ana pencerede MainViewModel kullanıyoruz -->
